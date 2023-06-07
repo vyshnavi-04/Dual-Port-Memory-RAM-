@@ -1,0 +1,88 @@
+//design block
+
+
+module dual_port_ram (
+    input clock,
+    input write_enable_A,
+    input write_enable_B,
+    input [7:0] data_in_A,
+    input [7:0] data_in_B,
+    input [7:0] address_A,
+    input [7:0] address_B,
+    output  [7:0] data_out_A,
+    output  [7:0] data_out_B
+);
+
+reg [7:0] mem [0:255];
+always@(*)
+  begin
+    if (write_enable_A) begin
+        mem[address_A] <= data_in_A;
+    end
+    if (write_enable_B) begin
+        mem[address_B] <= data_in_B;
+    end
+   end
+assign data_out_A = mem[address_A];
+assign data_out_B = mem[address_B];
+
+endmodule
+
+
+//testbench..
+
+
+module dual_port_ram_tb;
+
+reg clock;
+reg write_enable_A;
+reg write_enable_B;
+reg [7:0] data_in_A;
+reg [7:0] data_in_B;
+reg [7:0] address_A;
+reg [7:0] address_B;
+wire [7:0] data_out_A;
+wire [7:0] data_out_B;
+
+dual_port_ram dut (
+    .clock(clock),
+    .write_enable_A(write_enable_A),
+    .write_enable_B(write_enable_B),
+    .data_in_A(data_in_A),
+    .data_in_B(data_in_B),
+    .address_A(address_A),
+    .address_B(address_B),
+    .data_out_A(data_out_A),
+    .data_out_B(data_out_B)
+);
+integer i;
+initial 
+  begin
+ for(i=0;i<256;i=i+1)
+  begin
+   write_enable_A = 1;
+   write_enable_B = 1;
+   #1
+   address_A=i;
+   address_B=i;
+   data_in_A=i;
+   data_in_B=i;
+ end 
+
+#1
+   write_enable_A=0;
+   write_enable_B=0;
+   address_A=8'h3f;
+   address_B=8'h4F; 
+   end
+//end
+
+always 
+ begin
+    clock = 0;
+    #5;
+    clock = 1;
+    #5;
+end
+
+endmodule
